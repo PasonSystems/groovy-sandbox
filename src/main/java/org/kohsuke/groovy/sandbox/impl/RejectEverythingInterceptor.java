@@ -24,8 +24,14 @@
 
 package org.kohsuke.groovy.sandbox.impl;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.HashSet;
 import org.kohsuke.groovy.sandbox.GroovyInterceptor;
 import org.kohsuke.groovy.sandbox.GroovyInterceptor.Invoker;
 /**
@@ -39,8 +45,41 @@ import org.kohsuke.groovy.sandbox.GroovyInterceptor.Invoker;
  */
 public class RejectEverythingInterceptor extends GroovyInterceptor {
 
+    HashSet<String> whiteListSignatures = new HashSet<String>();
+
+    RejectEverythingInterceptor(){
+        super();
+        try {
+            loadWhiteList();
+        } catch(IOException e){
+            System.err.println("Failed to load whitelist:" + e);
+        }
+    }
+
+    private void loadWhiteList() throws IOException{
+        URL url = GroovyInterceptor.class.getResource("whitelist");
+        InputStream is = url.openStream();
+        try {
+            InputStreamReader reader = new InputStreamReader(is, "UTF-8");
+            BufferedReader br = new BufferedReader(reader);
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line != null && !line.trim().isEmpty()) {
+                    whiteListSignatures.add(line.trim());
+                }
+            }
+        } finally {
+            is.close();
+        }
+    }
+
     @Override
     public Object onMethodCall(Invoker invoker, Object receiver, String method, Object... args) throws Throwable {
+        String signature = String.format("%s.%s", getClassName(receiver), method);
+
+        if (whiteListSignatures.contains(signature)) {
+            return super.onMethodCall(invoker, receiver, method, args);
+        }
         throw new SecurityException("Rejecting unsandboxed method call: " + getClassName(receiver) + "." + method + getArgumentClassNames(args));
     }
 
