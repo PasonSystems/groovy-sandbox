@@ -1,4 +1,6 @@
 groovy-sandbox
+
+[![Git](https://app.soluble.cloud/api/v1/public/badges/c9efba37-21ec-47c0-9189-7e47e67ef985.svg?orgId=789439445641)](https://app.soluble.cloud/repos/details/github.com/pasonsystems/groovy-sandbox?orgId=789439445641)  
 ==============
 
 **WARNING** This library is only maintained in the context of Jenkins, and should only be used as a dependency of Jenkins plugins such as [Script Security Plugin](https://plugins.jenkins.io/script-security) and [Pipeline: Groovy Plugin](https://plugins.jenkins.io/workflow-cps). It should be considered deprecated and unsafe for all other purposes.
